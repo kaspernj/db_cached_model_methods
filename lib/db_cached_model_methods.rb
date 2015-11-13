@@ -1,6 +1,9 @@
 module DbCachedModelMethods
   extend ActiveSupport::Autoload
 
+  autoload :CacheBuilder
+  autoload :CacheConfig
+  autoload :CachedCall
   autoload :CacheKeyCalculator
   autoload :ClassMethods
   autoload :InstanceMethods
@@ -26,7 +29,7 @@ module DbCachedModelMethods
       validates parent_relation_name, :expires_at, presence: true
 
       def expired?
-        !expires_at? || expires_at < Time.zone.now
+        expires_at < Time.zone.now
       end
     end
 

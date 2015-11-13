@@ -3,7 +3,7 @@ class DbCachedModelMethods::CacheKeyCalculator
 
   def initialize(args)
     @args = args.fetch(:args)
-    @parts = ["args-#{@args.length}"]
+    @parts = [@args.length]
   end
 
   def calculate
@@ -15,7 +15,6 @@ class DbCachedModelMethods::CacheKeyCalculator
       end
     end
 
-    @cache_key = @parts.join("__") if @parts.length > 1
-    self
+    @parts.join("-")
   end
 end
