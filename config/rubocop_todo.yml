@@ -1,0 +1,43 @@
+---
+inherit_from: "/media/storage/Dev/Ruby/best_practice_project/config/rubocop.yml"
+
+Lint/NestedMethodDefinition:
+  Exclude:
+  - lib/db_cached_model_methods.rb
+  - lib/db_cached_model_methods/migration_table_creator.rb
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+  - lib/db_cached_model_methods/class_methods.rb
+
+Metrics/AbcSize:
+  Max: 44
+
+Rails/Delegate:
+  Exclude:
+  - lib/db_cached_model_methods/migration_table_creator.rb
+
+Style/ClassAndModuleChildren:
+  Exclude:
+  - spec/dummy/config/application.rb
+
+Style/ClassVars:
+  Exclude:
+  - lib/db_cached_model_methods/class_methods.rb
+
+Style/NumericLiterals:
+  MinDigits: 15
+
+Style/SingleSpaceBeforeFirstArg:
+  Exclude:
+  - spec/dummy/db/schema.rb
+
+Style/SpecialGlobalVars:
+  Exclude:
+  - db_cached_model_methods.gemspec
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/WordArray:
+  MinSize: 3

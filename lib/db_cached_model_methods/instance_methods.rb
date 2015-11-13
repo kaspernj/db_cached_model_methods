@@ -1,0 +1,2 @@
+module DbCachedModelMethods::InstanceMethods
+end
