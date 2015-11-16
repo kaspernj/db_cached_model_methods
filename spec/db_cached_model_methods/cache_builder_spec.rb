@@ -6,6 +6,6 @@ describe DbCachedModelMethods::CacheBuilder do
 
   it "#execute" do
     builder.execute
-    expect(user.db_caches.count).to eq 1
+    expect(user.db_caches.for("some_method").count).to eq 1
   end
 end

@@ -23,26 +23,19 @@ module DbCachedModelMethods::ClassMethods
 
   def cache_method_in_db(args = {})
     method_name = args.fetch(:method)
-
-    cached_method_name = "cached_#{method_name}"
+    raise "#{method_name} does not exist. Have you put \"cache_method_in_db\" below the method definition?" unless instance_methods.include?(method_name)
 
     expires_in = args[:expires_in].presence || 1.hour
+    persist = args[:persist] || false
+    require_args = args.key?(:require_args) ? args.fetch(:require_args) : true
 
-    if args.key?(:require_args)
-      require_args = args.fetch(:require_args)
-    else
-      require_args = true
-    end
+    cache_args = args.merge(
+      persist: persist,
+      require_args: require_args,
+      expires_in: expires_in
+    )
+    db_cached_model_methods[:methods][method_name] = cache_args
 
-    db_cached_model_methods[:methods][method_name] = {type: args.fetch(:type), require_args: require_args, expires_in: expires_in}
-
-    __send__(:define_method, cached_method_name) do |*method_args, &method_blk|
-      DbCachedModelMethods::CachedCall.new(
-        args: method_args,
-        block: method_blk,
-        method_name: method_name,
-        model: self
-      ).call
-    end
+    DbCachedModelMethods::ModelManipulator.new(model_class: self, method_name: method_name, cache_args: cache_args).execute
   end
 end

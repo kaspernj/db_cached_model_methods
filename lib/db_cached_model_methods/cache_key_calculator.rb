@@ -1,6 +1,10 @@
 class DbCachedModelMethods::CacheKeyCalculator
   attr_reader :cache_key
 
+  def self.for_args(args)
+    DbCachedModelMethods::CacheKeyCalculator.new(args: args).calculate
+  end
+
   def initialize(args)
     @args = args.fetch(:args)
     @parts = [@args.length]

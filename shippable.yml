@@ -8,6 +8,6 @@ script:
   - RAILS_ENV=test bundle exec rake db:migrate
   - cd ../..
   - bundle exec rspec
-  - bundle exec rubocop --rails
+  - bundle exec rake best_practice_project:run
 notifications:
    email: false

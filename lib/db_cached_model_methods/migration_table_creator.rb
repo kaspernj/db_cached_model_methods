@@ -4,13 +4,21 @@ class DbCachedModelMethods::MigrationTableCreator
   end
 
   def migrate(direction)
-    migration_class.migrate(direction)
+    spawn_migration_class.migrate(direction)
   end
 
 private
 
-  def migration_class
-    migration_class = Class.new(ActiveRecord::Migration) do
+  def spawn_migration_class
+    migration_class = create_class
+
+    migration_class.table_name = "#{@model.name.underscore}_caches"
+    migration_class.column_name = "#{@model.name.underscore}_id".to_sym
+    migration_class
+  end
+
+  def create_class
+    Class.new(ActiveRecord::Migration) do
       class << self
         attr_accessor :column_name, :table_name
       end
@@ -25,8 +33,17 @@ private
           t.float :float_value
           t.datetime :time_value
           t.datetime :expires_at
+          t.timestamps
         end
 
+        add_indexes
+      end
+
+      def down
+        drop_table self.class
+      end
+
+      def add_indexes
         add_index self.class.table_name, :resource_id
         add_index self.class.table_name, [:resource_id, :method_name, :unique_key], unique: true, name: "#{self.class.table_name}_unique_resource_method_key"
         add_index self.class.table_name, :string_value
@@ -35,14 +52,6 @@ private
         add_index self.class.table_name, :time_value
         add_index self.class.table_name, :expires_at
       end
-
-      def down
-        drop_table self.class
-      end
     end
-
-    migration_class.table_name = "#{@model.name.underscore}_caches"
-    migration_class.column_name = "#{@model.name.underscore}_id".to_sym
-    migration_class
   end
 end

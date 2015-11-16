@@ -3,10 +3,12 @@ module DbCachedModelMethods
 
   autoload :CacheBuilder
   autoload :CacheConfig
+  autoload :CacheCleaner
   autoload :CachedCall
   autoload :CacheKeyCalculator
   autoload :ClassMethods
   autoload :InstanceMethods
+  autoload :ModelManipulator
   autoload :Compatibility
   autoload :MigrationTableCreator
 
@@ -27,6 +29,17 @@ module DbCachedModelMethods
 
       belongs_to parent_relation_name, foreign_key: :resource_id
       validates parent_relation_name, :expires_at, presence: true
+
+      scope :for, lambda { |method_name, *args|
+        if args.any?
+          unique_key = DbCachedModelMethods::CacheKeyCalculator.for_args(args)
+          where(method_name: method_name, unique_key: unique_key)
+        else
+          where(method_name: method_name).with_no_args
+        end
+      }
+
+      scope :with_no_args, -> { where(unique_key: "0") }
 
       def expired?
         expires_at < Time.zone.now
