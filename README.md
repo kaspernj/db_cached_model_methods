@@ -28,11 +28,10 @@ Include in your model and specify which methods to add cache versions for:
 class User < ActiveRecord::Base
   include DbCachedModelMethods
 
-  cache_method_in_db method: :heavy_method, type: :integer
-
   def heavy_method
     ...
   end
+  cache_method_in_db method: :heavy_method, type: :integer
 end
 ```
 
