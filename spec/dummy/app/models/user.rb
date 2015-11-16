@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
 
     6
   end
-  cache_method_in_db method: :persisted_method, type: :integer, persist: true
+  cache_method_in_db method: :persisted_method, type: :integer, persist: true, expires_in: 2.hours
 
   def overridden_method
     @overwritten_method_called ||= 0
@@ -36,6 +36,10 @@ class User < ActiveRecord::Base
     8
   end
   cache_method_in_db method: :expires_in_proc_method, type: :integer, expires_in: proc { |user| user.expires_in_expire }
+
+  def method_that_requires_args(arg1)
+  end
+  cache_method_in_db method: :method_that_requires_args, type: :integer
 
 private
 
