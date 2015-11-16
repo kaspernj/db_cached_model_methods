@@ -59,8 +59,12 @@ private
   end
 
   def find_cache
+    has_one_relation_name = "db_cache_#{@method_name}".to_sym
+
     if @model.db_caches.loaded?
       @cache = find_cache_by_autoload
+    elsif @model.association(has_one_relation_name).loaded?
+      @cache = find_cache_by_association_autoload(has_one_relation_name)
     else
       @cache = find_cache_by_query
     end
@@ -78,5 +82,9 @@ private
 
   def find_cache_by_autoload
     @model.db_caches.to_a.detect { |db_cache| db_cache.method_name == @method_name.to_s && db_cache.unique_key == cache_key }
+  end
+
+  def find_cache_by_association_autoload(has_one_relation_name)
+    @model.__send__(has_one_relation_name)
   end
 end
