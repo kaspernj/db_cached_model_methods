@@ -1,5 +1,5 @@
 ---
-inherit_from: "/media/storage/Dev/Ruby/best_practice_project/config/rubocop.yml"
+inherit_from: "$$$best_practice_project_config_path$$$"
 
 Lint/NestedMethodDefinition:
   Exclude:

@@ -12,6 +12,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema.define(version: 20151113082450) do
+
   create_table "user_caches", force: :cascade do |t|
     t.integer  "resource_id"
     t.string   "method_name"
@@ -21,6 +22,8 @@ ActiveRecord::Schema.define(version: 20151113082450) do
     t.float    "float_value"
     t.datetime "time_value"
     t.datetime "expires_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "user_caches", ["expires_at"], name: "index_user_caches_on_expires_at"
@@ -36,4 +39,5 @@ ActiveRecord::Schema.define(version: 20151113082450) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
 end

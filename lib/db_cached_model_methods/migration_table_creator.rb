@@ -25,6 +25,7 @@ private
           t.float :float_value
           t.datetime :time_value
           t.datetime :expires_at
+          t.timestamps
         end
 
         add_index self.class.table_name, :resource_id
