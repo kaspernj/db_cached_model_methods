@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/kaspernj/best_practice_project.git
-  revision: 60956e29dc1e62d8d79840c01c068b0f3a78f616
+  revision: c145153695a16495cd6d40e52f2414b45bb44d04
   specs:
     best_practice_project (0.0.1)
       coffeelint (= 1.11.0)

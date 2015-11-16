@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
-  attr_accessor :some_method_called, :persisted_method_called, :expires_in_proc_method_called, :expires_in_expire
+  attr_accessor :some_method_called, :persisted_method_called, :expires_in_proc_method_called
+  attr_accessor :expires_in_expire, :overwritten_method_called, :overwritten_uncached_method_called
 
   include DbCachedModelMethods
 
@@ -29,6 +30,14 @@ class User < ActiveRecord::Base
   end
   cache_method_in_db method: :overridden_method, type: :integer, override: true
 
+  def overridden_uncached_method
+    @overwritten_uncached_method_called ||= 0
+    @overwritten_uncached_method_called += 1
+
+    8
+  end
+  cache_method_in_db method: :overridden_uncached_method, type: :integer, override_uncached: true
+
   def expires_in_proc_method
     @expires_in_proc_method_called ||= 0
     @expires_in_proc_method_called += 1
@@ -48,5 +57,6 @@ private
     @persisted_method_called ||= 0
     @overwritten_method_called ||= 0
     @expires_in_proc_method_called ||= 0
+    @overwritten_uncached_method_called ||= 0
   end
 end

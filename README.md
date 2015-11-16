@@ -76,6 +76,28 @@ You can also update the cache for each method:
 DbCachedModelMethods::CacheBuilder.new(model_class: User, method: :heavy_method, progress_bar: true).execute
 ```
 
+### Autoloading / eager loading cached methods
+
+If you want to call a cached-method in a lot of records, it makes a lot of sense to optimize the query instead of doing n+1.
+
+You can either autoload all cached methods or the individual ones.
+
+This autoloads all method caches including "my_method"
+```ruby
+User.includes(:db_caches).each do |user|
+  user.my_method # Doesn't do an extra query
+  user.other_method # Doesn't do an query
+end
+```
+
+This autoloads only the cache for the method "my_method"
+```ruby
+User.includes(:db_cache_my_method).each do |user|
+  user.my_method # Doesn't do an extra query
+  user.other_method # Does an extra query and IMPACTS PERFORMANCE!
+end
+```
+
 # Licence
 
 This project rocks and uses MIT-LICENSE.
