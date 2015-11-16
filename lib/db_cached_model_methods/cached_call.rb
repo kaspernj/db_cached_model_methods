@@ -55,7 +55,7 @@ private
   end
 
   def cache_key
-    @cache_key ||= DbCachedModelMethods::CacheKeyCalculator.new(args: @args).calculate
+    @cache_key ||= DbCachedModelMethods::CacheKeyCalculator.for_args(@args)
   end
 
   def find_cache
