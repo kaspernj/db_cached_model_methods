@@ -1,3 +1,5 @@
+[![Build Status](https://img.shields.io/shippable/5649b1491895ca4474239301.svg)](https://app.shippable.com/projects/5649b1491895ca4474239301/builds/latest)
+
 # DbCachedModelMethods
 
 ## Install
