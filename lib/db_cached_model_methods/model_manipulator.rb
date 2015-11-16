@@ -1,4 +1,6 @@
 class DbCachedModelMethods::ModelManipulator
+  ALLOWED_ARGS = [:expires_in, :method, :override, :override_uncached, :persist, :require_args, :type]
+
   def initialize(args)
     @args = args.fetch(:args)
     @model_class = args.fetch(:model_class)
@@ -37,6 +39,10 @@ private
     end
 
     raise "'#{@method_name}' has already been cached" if @model_class.db_cached_model_methods.fetch(:methods).key?(@method_name)
+
+    @args.each_key do |key|
+      raise "Illegal argument: #{key}" unless ALLOWED_ARGS.include?(key)
+    end
 
     @arity = @model_class.instance_method(@method_name).arity
 
