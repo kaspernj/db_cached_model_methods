@@ -100,6 +100,34 @@ User.includes(:db_cache_my_method).each do |user|
 end
 ```
 
+### Joining in a query
+
+It is possible to join the caches through the "db_caches" and "db_cache_[method_name]" relations. If you do so, it is probably a good idea to use the `persist: true` to the `cache_method_in_db`-call.
+
+If you don't, it is possible that the cache for most records doesn't exist. The cleaner will simply delete expired caches. If it is persisted, the cleaner will update the existing cache instead of deleting them.
+
+```ruby
+class User < ActiveRecord::Base
+  include DbCachedModelMethods
+
+  def heavy_method
+    ...
+  end
+  cache_method_in_db method: :heavy_method, type: :integer, persist: true
+end
+```
+
+You then want to create cache for all records like this:
+```ruby
+User.db_cached_model_methods_update!
+```
+
+If you have a big table, you can use the "progress_bar"-gem to manage your nerves:
+```ruby
+User.db_cached_model_methods_update!(progress_bar: true)
+```
+
+
 # Licence
 
 This project rocks and uses MIT-LICENSE.
