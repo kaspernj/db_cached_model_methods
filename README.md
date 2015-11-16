@@ -127,6 +127,11 @@ If you have a big table, you can use the "progress_bar"-gem to manage your nerve
 User.db_cached_model_methods_update!(progress_bar: true)
 ```
 
+At the very end you can do queries like this:
+```ruby
+User.joins(:db_cache_my_method).where("user_caches.integer_value > 5")
+```
+
 
 # Licence
 
