@@ -53,7 +53,7 @@ Forces a call to the original method, updates the cache and returns the value:
 user.uncached_heavy_method
 ```
 
-Always just calls the original method - even if it is overriden. It won't create, update or touch the cache the cache.
+Always just calls the original method - even if it is overriden. It won't create, update or touch the cache.
 ```ruby
 user.original_heavy_method
 ```
