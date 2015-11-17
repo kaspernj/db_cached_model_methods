@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   end
   cache_method_in_db method: :expires_in_proc_method, type: :integer, expires_in: proc { |user| user.expires_in_expire }
 
-  def method_that_requires_args(arg1)
+  def method_that_requires_args(_arg1)
     9
   end
   cache_method_in_db method: :method_that_requires_args, type: :integer
