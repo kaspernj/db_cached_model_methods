@@ -1,5 +1,5 @@
 class DbCachedModelMethods::ModelManipulator
-  ALLOWED_ARGS = [:expires_in, :method, :override, :override_uncached, :persist, :require_args, :type]
+  ALLOWED_ARGS = [:expires_in, :method, :override, :override_uncached, :persist, :require_args, :type, :with_slave_db]
 
   def initialize(args)
     @args = args.fetch(:args)

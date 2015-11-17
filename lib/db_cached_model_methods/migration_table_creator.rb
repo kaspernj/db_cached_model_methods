@@ -33,6 +33,7 @@ private
           t.float :float_value
           t.datetime :time_value
           t.datetime :expires_at
+          t.boolean :expired
           t.timestamps
         end
 
@@ -51,6 +52,7 @@ private
         add_index self.class.table_name, :float_value
         add_index self.class.table_name, :time_value
         add_index self.class.table_name, :expires_at
+        add_index self.class.table_name, :expired
       end
     end
   end

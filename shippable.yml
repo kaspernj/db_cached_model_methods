@@ -5,7 +5,7 @@ rvm:
   - ruby-2.1.2
 script:
   - cd spec/dummy
-  - RAILS_ENV=test bundle exec rake db:migrate
+  - RAILS_ENV=test bundle exec rake db:drop db:schema:load
   - cd ../..
   - bundle exec rspec
   - bundle exec rake best_practice_project:run

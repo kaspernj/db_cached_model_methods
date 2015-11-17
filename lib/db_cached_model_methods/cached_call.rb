@@ -1,4 +1,16 @@
 class DbCachedModelMethods::CachedCall
+  def self.through_slave_db
+    @octopus ||= DbCachedModelMethods::CacheConfig.current.octopus
+
+    if @octopus
+      Octopus.using(@octopus) do
+        yield
+      end
+    else
+      yield
+    end
+  end
+
   def initialize(args)
     @args = args.fetch(:args)
     @block = args.fetch(:block)
@@ -8,7 +20,6 @@ class DbCachedModelMethods::CachedCall
     @expires_in = @method_data.fetch(:expires_in)
     @transactioner = args[:transactioner]
     @force = args[:force]
-    @octopus = DbCachedModelMethods::CacheConfig.current.octopus
   end
 
   def call
@@ -20,7 +31,7 @@ class DbCachedModelMethods::CachedCall
     if regenerate_cache?
       @cache ||= @model.db_caches.new
 
-      call_result = @model.__send__("original_#{@method_name}", *@args, &@block)
+      call_result = call_method
 
       if @expires_in.is_a?(Proc)
         expires_at = @expires_in.call(@model, @cache)
@@ -32,6 +43,7 @@ class DbCachedModelMethods::CachedCall
 
       @cache.assign_attributes(
         expires_at: expires_at,
+        expired: nil,
         method_name: @method_name,
         unique_key: cache_key,
         result_attr => call_result
@@ -51,11 +63,26 @@ private
 
   def regenerate_cache?
     return true if @force || !@cache
-    @cache.expired?
+    @cache.expired_by_date_or_boolean?
   end
 
   def cache_key
     @cache_key ||= DbCachedModelMethods::CacheKeyCalculator.for_args(@args)
+  end
+
+  def call_method
+    return call_original_through_octopus if @method_data[:with_slave_db]
+    call_original_method
+  end
+
+  def call_original_method
+    @model.__send__("original_#{@method_name}", *@args, &@block)
+  end
+
+  def call_original_through_octopus
+    DbCachedModelMethods::CachedCall.through_slave_db do
+      call_original_method
+    end
   end
 
   def find_cache
@@ -71,11 +98,7 @@ private
   end
 
   def find_cache_by_query
-    if @octopus
-      Octopus.using(@octopus) do
-        @model.db_caches.find_by(method_name: @method_name, unique_key: cache_key)
-      end
-    else
+    DbCachedModelMethods::CachedCall.through_slave_db do
       @model.db_caches.find_by(method_name: @method_name, unique_key: cache_key)
     end
   end

@@ -22,6 +22,20 @@ class CreateUsersCache < ActiveRecord::Migration
 end
 ```
 
+### Configuration
+
+#### Octopus
+
+Create an initializer here: "config/initializers/db_cached_model_methods.rb" with the following content:
+
+```ruby
+config = DbCachedModelMethods::CacheConfig.current
+config.octopus = :my_slave_database
+```
+
+All cached lookups will now go through the given slave DB.
+
+
 ## Usage
 
 Include in your model and specify which methods to add cache versions for:
@@ -42,6 +56,7 @@ Both the "method" and "type" argument are required. You can also give the follow
 - "persist" - will try to always keep a cached value in the database, so you can use it in various queries with joins without leaving anyone out. It will update the cache instead of deleting it when cleaning, so your updates will be slower!
 - "override" & "override_uncached" - will override the original method with the one of the cached versions. Uncached will always call the original method and attempt but also update the cache if necessary.
 - "expires_in" - how long until the cache should expire. Can be a time like `1.hour` or a proc which will do a callback with the model and expect a time-duration to be returned. The default is one hour.
+- "with_slave_db" - will always do the call to the original method through the given Octopus slave database.
 
 To call the cached version you need to append "cached_" to the method name. Checks if a cached version exist, and if it isn't expired, it will return that value. It creates the cache if it doesn't exist or update the existing cache, if it is expired.
 ```ruby
@@ -130,6 +145,24 @@ User.db_cached_model_methods_update!(progress_bar: true)
 At the very end you can do queries like this:
 ```ruby
 User.joins(:db_cache_my_method).where("user_caches.integer_value > 5")
+```
+
+
+### Expiring cache and plan later deletion or updating
+
+```ruby
+user.db_caches.expire!
+```
+
+
+### Updating expired cache
+
+Since we cannot calculate arguments for persisted methods, those won't be updated.
+
+```ruby
+cleaner = DbCachedModelMethods::GeneralCacheCleaner.new
+cleaner.delete_expired
+cleaner.update_persisted_expired
 ```
 
 
