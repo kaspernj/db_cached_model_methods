@@ -1,12 +1,15 @@
 module DbCachedModelMethods
   extend ActiveSupport::Autoload
 
+  CLASSES_WITH_DB_CACHE = {}
+
   autoload :CacheBuilder
   autoload :CacheConfig
   autoload :CacheCleaner
   autoload :CachedCall
   autoload :CacheKeyCalculator
   autoload :ClassMethods
+  autoload :GeneralCacheCleaner
   autoload :InstanceMethods
   autoload :ModelManipulator
   autoload :Compatibility
@@ -27,6 +30,7 @@ module DbCachedModelMethods
         self.table_name = table_name
       end
 
+      belongs_to :resource, class_name: base.name
       belongs_to parent_relation_name, foreign_key: :resource_id
       validates parent_relation_name, :expires_at, presence: true
 
@@ -40,9 +44,11 @@ module DbCachedModelMethods
       }
 
       scope :with_no_args, -> { where(unique_key: "0") }
+      scope :expired, -> { where("#{table_name}.expired = 1 OR #{table_name}.expires_at < ?", Time.zone.now) }
+      scope :expire!, -> { update_all(expired: 1) }
 
-      def expired?
-        expires_at < Time.zone.now
+      def expired_by_date_or_boolean?
+        expired? || expires_at < Time.zone.now
       end
     end
 
@@ -51,5 +57,11 @@ module DbCachedModelMethods
     base.class_eval do
       has_many :db_caches, class_name: class_name, foreign_key: :resource_id, dependent: :destroy
     end
+
+    CLASSES_WITH_DB_CACHE[base] = {
+      table_name: table_name,
+      class_name: class_name,
+      constant: clazz
+    }
   end
 end

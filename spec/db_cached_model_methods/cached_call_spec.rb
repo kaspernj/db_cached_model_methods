@@ -18,4 +18,9 @@ describe DbCachedModelMethods::CachedCall do
       expect(user.expires_in_proc_method_called).to eq 2
     end
   end
+
+  it "#call_original_through_octopus" do
+    expect_any_instance_of(DbCachedModelMethods::CachedCall).to receive(:call_original_through_octopus).and_call_original
+    expect(user.cached_method_with_slave_db).to eq 10
+  end
 end
