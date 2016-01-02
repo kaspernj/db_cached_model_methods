@@ -24,37 +24,9 @@ class DbCachedModelMethods::CachedCall
 
   def call
     result_type = @method_data.fetch(:type)
-    result_attr = "#{result_type}_value".to_sym
 
     find_cache
-
-    if regenerate_cache?
-      @cache ||= @model.db_caches.new
-
-      call_result = call_method
-
-      if @expires_in.is_a?(Proc)
-        expires_at = @expires_in.call(@model, @cache)
-      else
-        expires_at = @expires_in.from_now
-      end
-
-      expires_at ||= 1.hour.from_now
-
-      @cache.assign_attributes(
-        expires_at: expires_at,
-        expired: nil,
-        method_name: @method_name,
-        unique_key: cache_key,
-        result_attr => call_result
-      )
-
-      if @transactioner
-        @transactioner.save! @cache if @cache.changed?
-      else
-        @cache.save!
-      end
-    end
+    regenrate_cache! if regenerate_cache?
 
     @cache.__send__("#{result_type}_value")
   end
@@ -64,6 +36,48 @@ private
   def regenerate_cache?
     return true if @force || !@cache
     @cache.expired_by_date_or_boolean?
+  end
+
+  def regenrate_cache!
+    @cache ||= @model.db_caches.new
+    result_type = @method_data.fetch(:type)
+
+    call_result = call_method
+
+    if @expires_in.is_a?(Proc)
+      expires_at = @expires_in.call(@model, @cache)
+    else
+      expires_at = @expires_in.from_now
+    end
+
+    expires_at ||= 1.hour.from_now
+    result_attr = "#{result_type}_value".to_sym
+
+    new_cache_data = {
+      expires_at: expires_at,
+      expired: nil,
+      method_name: @method_name,
+      unique_key: cache_key,
+      result_attr => call_result
+    }
+
+    save_cache(new_cache_data)
+  end
+
+  def save_cache(new_cache_data)
+    @cache.assign_attributes(new_cache_data)
+
+    if @transactioner
+      @transactioner.save! @cache if @cache.changed?
+    else
+      begin
+        @cache.save!
+      # rubocop:disable Lint/HandleExceptions
+      rescue ActiveRecord::RecordNotUnique
+        # rubocop:enable Lint/HandleExceptions
+        # Ignore - cache must have been inserted in between an autoload and this call
+      end
+    end
   end
 
   def cache_key
