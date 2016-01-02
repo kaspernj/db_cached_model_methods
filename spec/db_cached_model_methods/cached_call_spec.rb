@@ -1,8 +1,7 @@
 require "spec_helper"
 
 describe DbCachedModelMethods::CachedCall do
-  let(:organization) { create :organization }
-  let(:user) { create :user, organization: organization }
+  let(:user) { create :user }
 
   describe "expires_in" do
     it "supports procs" do
@@ -28,7 +27,7 @@ describe DbCachedModelMethods::CachedCall do
   it "retries when record isnt unique" do
     expect(user.db_caches.for("some_method").count).to eq 0
 
-    user = organization.users.includes(:db_caches).first
+    user = User.includes(:db_caches).first
     expect(user.db_caches.size).to eq 1
 
     user_other_ref = User.find(user.id)
